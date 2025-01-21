@@ -124,6 +124,7 @@ Start the development server:
 Access points:
 * Application: `http://localhost:8080`
 * OpenAPI documentation: `http://localhost:8080/openapi`
+* OpenAPI Swagger: `http://localhost:8080/q/swagger-ui/`
 
 ## Initial Data Import
 
