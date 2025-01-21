@@ -39,7 +39,6 @@ public class FinanceController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Base currency and target currencies are required.").build();
         }
 
-        // Split the targetCurrencies string into a List
         List<String> targetCurrencyList = Arrays.asList(targetCurrencies.split(","));
 
         financeService.fetchAndSaveMultipleCurrencies(baseCurrency, targetCurrencyList);

@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -107,7 +107,6 @@ public class FinanceControllerTest {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals("Finance data updated successfully.", response.getEntity());
 
-        // Verify the service method was called
         verify(financeService, times(1)).updateFinanceData(1L, financeData);
     }
 
@@ -125,5 +124,76 @@ public class FinanceControllerTest {
 
         // Verify the service method was called
         verify(financeService, times(1)).deleteFinanceData(1L);
+    }
+
+    @Test
+    void testFetchAndSaveMultipleCurrencies_success() {
+        // Mock the service method
+        doNothing().when(financeService).fetchAndSaveMultipleCurrencies(anyString(), anyList());
+
+        // Prepare test data
+        String baseCurrency = "USD";
+        List<String> targetCurrencies = Arrays.asList("EUR", "GBP", "JPY");
+
+        // Call the controller method
+        Response response = financeController.fetchAndSaveMultipleCurrencies(baseCurrency, "EUR,GBP,JPY");
+
+        // Verify the response
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("Exchange rate data for multiple currencies saved successfully.", response.getEntity());
+
+        // Verify that the service method was called
+        verify(financeService, times(1)).fetchAndSaveMultipleCurrencies("USD", targetCurrencies);
+    }
+
+    @Test
+    void testFetchAndSaveMultipleCurrencies_missingBaseCurrency() {
+        // Call the controller method with missing base currency
+        Response response = financeController.fetchAndSaveMultipleCurrencies(null, "EUR,GBP,JPY");
+
+        // Verify the response
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals("Base currency and target currencies are required.", response.getEntity());
+    }
+
+    @Test
+    void testFetchAndSaveMultipleCurrencies_missingTargetCurrencies() {
+        // Call the controller method with missing target currencies
+        Response response = financeController.fetchAndSaveMultipleCurrencies("USD", "");
+
+        // Verify the response
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals("Base currency and target currencies are required.", response.getEntity());
+    }
+
+    @Test
+    void testUpdateExchangeRatesForMultipleCurrencies_success() {
+        // Mock the service method
+        doNothing().when(financeService).updateExchangeRatesForMultipleCurrencies(anyString(), anyMap());
+
+        // Prepare test data
+        Map<String, Double> targetCurrenciesRates = new HashMap<>();
+        targetCurrenciesRates.put("EUR", 0.85);
+        targetCurrenciesRates.put("GBP", 0.75);
+
+        // Call the controller method
+        Response response = financeController.updateExchangeRatesForMultipleCurrencies(targetCurrenciesRates);
+
+        // Verify the response
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("Exchange rates for multiple currencies updated successfully.", response.getEntity());
+
+        // Verify that the service method was called
+        verify(financeService, times(1)).updateExchangeRatesForMultipleCurrencies("INR", targetCurrenciesRates);
+    }
+
+    @Test
+    void testUpdateExchangeRatesForMultipleCurrencies_missingRates() {
+        // Call the controller method with empty target currencies
+        Response response = financeController.updateExchangeRatesForMultipleCurrencies(new HashMap<>());
+
+        // Verify the response
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals("Target currencies and exchange rates are required.", response.getEntity());
     }
 }
